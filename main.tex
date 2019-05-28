@@ -117,7 +117,7 @@ In this work, we aim to find the optimal values of the regularization strength o
 %\end{center} 
 %\\ Convex function definition & L-lipchitz smooth  
 \section{Matrix Factorization for the Netflix Problem}
-The Netflix Problem involves a matrix $R$ of dimension $m \times n$ corresponding to $m$ users and $n$ items(movies). The $(i,j)^{th}$ entry of $R$ is a non-negative real number in $[0,5]$ is a rating of the $j^{th}$ item by the $i^{th}$ user. But the matrix $R$ is incomplete and on the basis of the available entries, we wish to predict the unavailable ones.We use latent factor model for this problem, which characterises each user and each item by a k-length \textit{embedding} vector.Where the inner product between the embedding vectors of the $i^{th}$ user and the $j^{th}$ item would be an approximation for the $(i,j)^th$ entry of $R$. We approximate $R$ as
+The Netflix Problem involves a matrix $R$ of dimension $m \times n$ corresponding to $m$ users and $n$ items(movies). The $(i,j)^{th}$ entry of $R$ is a non-negative real number in $[0,5]$ is a rating of the $j^{th}$ item by the $i^{th}$ user. But the matrix $R$ is incomplete and on the basis of the available entries, we wish to predict the unavailable ones. We use latent factor model for this problem, which characterises each user and each item by a k-length \textit{embedding} vector. Where the inner product between the embedding vectors of the $i^{th}$ user and the $j^{th}$ item would be an approximation for the $(i,j)^th$ entry of $R$. We approximate $R$ as
 \begin{equation}
     R\approx \hat{R}:=PQ 
 \end{equation}
@@ -127,23 +127,23 @@ Thus, we have
 \begin{equation}
     \hat{r}_{ij}=\vec{p_{i}}^{T}\vec{q_{j}}=\sum\limits_{k=1}^{K}p_{ik}q_{kj}
 \end{equation} 
-Now, we attempt to learn the matrices $P$ and $Q$ by minimizing the RMSE(root mean square error) between $R$ and $\hat{R}$ at the available entries of $R$. As the problem involves a large number of parameters to be learnt, $mk+kn$ to be precise, in order to avoid overfitting we use regularization by including the Frobenius norm of the two unknown matrices $P$ and $Q$ in the cost function.\\\\
+Now, we attempt to learn the matrices $P$ and $Q$ by minimizing the RMSE(root mean square error) between $R$ and $\hat{R}$ at the available entries of $R$, using Stochastic Gradient Descent. As the problem involves a large number of parameters to be learnt, $mk+kn$ to be precise, in order to avoid overfitting we use regularization by including the Frobenius norm of the two unknown matrices $P$ and $Q$ in the cost function.\\\\
 Let $T$ be the set of available entries in the matrix i.e.,
 \begin{equation}
     T:=\{(i,j)|r_{ij}~is~available~in~R\}
 \end{equation}
- So, the total cost function is:
- \begin{equation}
-     L:=\sum\limits_{(i,j)\in T} (r_{ij}-\vec{p_{i}}\cdot \vec{q_{j}})^{2} +\norm{P}^2+\norm{Q}^2
- \end{equation}
+ %So, the total cost function is:
+% \begin{equation}
+    % L:=\sum\limits_{(i,j)\in T} (r_{ij}-\vec{p_{i}}\cdot 5\vec{q_{j}})^{2} +\norm{P}^2+\norm{Q}^2
+ %\end{equation}
  If we uniformly sample an entry $(i,j)$ from $T$, the instantaneous cost function due to this entry would be:
  \begin{equation}
      \hat{l}=(r_{ij}-\vec{p_{i}}\cdot\vec{q_{j}})^2 + \norm{\vec{p_{i}}}^2+\norm{\vec{q_{j}}}^2
  \end{equation}
- where the norms are the $L_2$ norms of the vectors and we have:
+ where the norms are the $L_2$ norms of the vectors and we have the net cost function as:
  
  \begin{equation}
-     \mathbb{E}[\hat{l}]=\frac{1}{|T|}\sum\limits_{(i,j)\in T}(r_{ij}-\vec{p_{i}}\cdot\vec{q_{j}})^2+\frac{1}{|T|}\sum\limits_{i=1}^{m} s_i\norm{\vec{p_i}}^2+\frac{1}{|T|}\sum\limits_{j=1}^{n} t_j\norm{\vec{q_{j}}}^2
+    L:= \mathbb{E}[\hat{l}]=\frac{1}{|T|}\sum\limits_{(i,j)\in T}(r_{ij}-\vec{p_{i}}\cdot\vec{q_{j}})^2+\frac{1}{|T|}\sum\limits_{i=1}^{m} s_i\norm{\vec{p_i}}^2+\frac{1}{|T|}\sum\limits_{j=1}^{n} t_j\norm{\vec{q_{j}}}^2
  \end{equation}
  where
  \begin{align}
@@ -156,9 +156,9 @@ Let $T$ be the set of available entries in the matrix i.e.,
      \sum\limits_{j=1}^{n} t_j &= |T|
  \end{align}
 
-\section{Knowledge Base Completion}
+\section{Knowledge Base Completion using Tensor Decomposition}
 
-\section{Tensor Decomposition}
+
 
 
 
