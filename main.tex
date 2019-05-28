@@ -5,6 +5,9 @@
 \selectlanguage{english}
 \usepackage[utf8]{inputenc}
 \usepackage[svgnames]{xcolor}
+\usepackage{amsmath}
+\newcommand\norm[1]{\left\lVert#1\right\rVert}
+\DeclareMathOperator*{\E}{\mathbb{E}}
 
 
 
@@ -111,52 +114,52 @@ In this work, we aim to find the optimal values of the regularization strength o
 %Our Optimisation problem is as follows : \\
 %\begin{center}
 %\min\limits_{x \in R^d} f(x) & = \[ \frac{1}{n} %\sum\limits_{i=1}^{n} f \limits_{i}(x) \]
-
 %\end{center} 
 %\\ Convex function definition & L-lipchitz smooth  
 \section{Matrix Factorization for the Netflix Problem}
-w our limitations.
+The Netflix Problem involves a matrix $R$ of dimension $m \times n$ corresponding to $m$ users and $n$ items(movies). The $(i,j)^{th}$ entry of $R$ is a non-negative real number in $[0,5]$ is a rating of the $j^{th}$ item by the $i^{th}$ user. But the matrix $R$ is incomplete and on the basis of the available entries, we wish to predict the unavailable ones.We use latent factor model for this problem, which characterises each user and each item by a k-length \textit{embedding} vector.Where the inner product between the embedding vectors of the $i^{th}$ user and the $j^{th}$ item would be an approximation for the $(i,j)^th$ entry of $R$. We approximate $R$ as
+\begin{equation}
+    R\approx \hat{R}:=PQ 
+\end{equation}
+where $P$ is a $m \times k$ matix with each row being the embedding vector for each user and $Q$ is a $k \times n$ matrix with each column being the embedding vector for each item.
+Learning the matrices $P$ and $Q$ from the observed data would make us predict $\hat{R}$ which is a good approximation to R.\\
+Thus, we have
+\begin{equation}
+    \hat{r}_{ij}=\vec{p_{i}}^{T}\vec{q_{j}}=\sum\limits_{k=1}^{K}p_{ik}q_{kj}
+\end{equation} 
+Now, we attempt to learn the matrices $P$ and $Q$ by minimizing the RMSE(root mean square error) between $R$ and $\hat{R}$ at the available entries of $R$. As the problem involves a large number of parameters to be learnt, $mk+kn$ to be precise, in order to avoid overfitting we use regularization by including the Frobenius norm of the two unknown matrices $P$ and $Q$ in the cost function.\\\\
+Let $T$ be the set of available entries in the matrix i.e.,
+\begin{equation}
+    T:=\{(i,j)|r_{ij}~is~available~in~R\}
+\end{equation}
+ So, the total cost function is:
+ \begin{equation}
+     L:=\sum\limits_{(i,j)\in T} (r_{ij}-\vec{p_{i}}\cdot \vec{q_{j}})^{2} +\norm{P}^2+\norm{Q}^2
+ \end{equation}
+ If we uniformly sample an entry $(i,j)$ from $T$, the instantaneous cost function due to this entry would be:
+ \begin{equation}
+     \hat{l}=(r_{ij}-\vec{p_{i}}\cdot\vec{q_{j}})^2 + \norm{\vec{p_{i}}}^2+\norm{\vec{q_{j}}}^2
+ \end{equation}
+ where the norms are the $L_2$ norms of the vectors and we have:
+ 
+ \begin{equation}
+     \mathbb{E}[\hat{l}]=\frac{1}{|T|}\sum\limits_{(i,j)\in T}(r_{ij}-\vec{p_{i}}\cdot\vec{q_{j}})^2+\frac{1}{|T|}\sum\limits_{i=1}^{m} s_i\norm{\vec{p_i}}^2+\frac{1}{|T|}\sum\limits_{j=1}^{n} t_j\norm{\vec{q_{j}}}^2
+ \end{equation}
+ where
+ \begin{align}
+      s_i &:=  |\{j|r_{ij}\in T\}| \\
+      t_j  &:=  |\{i|r_{ij} \in T\}|
+ \end{align}
+ and 
+ \begin{align}
+     \sum\limits_{i=1}^{m} s_i &= |T|  \\
+     \sum\limits_{j=1}^{n} t_j &= |T|
+ \end{align}
 
+\section{Knowledge Base Completion}
 
-\subsection{GRASP and its parameter $\alpha$}
-The values of the objective function has been taken in the following table:
+\section{Tensor Decomposition}
 
-
-\subsubsection{Graphic representation and numeric data}
-
-We are going to see in the next code in R (the graphic representation will be done by a box plot). \\
-
-
-\subsubsection{Hypothesis contrasting}
-Now we will have done the hypothesis contrasting, which our null hypothesis $H_0$ is 
-\subsection{Tabu Search (\textit{First}) and its parameter \textit{tenure}.}
-We have studied forty \textit{tenure} (from 1 to 40) for \subsubsection{Graphic and numeric representation}
-We are going to see it in the next script of R (the graphic representation will be done by a box plot).
-
-
-\subsubsection{Hypothesis contrasting.}
-Now we will have done the hypothesis contrasting, which our null hypothesis $H_0$ is 
-\subsection{Tabu Search (\textit{Best}) and its parameter \textit{tenure}.}
-We have studied forty \textit{tenure} (from 1 to 40) the 
-
-
-\subsubsection{Graphic representation and numeric data}
-We are going to see it in the next script of R (the graphic representation will be done by a box plot).
-
-
-\section{Comparative between GRASP and TABU.}
-In the next section we are going to discus our target from the beggining, see what is the best algorithms, GRAPS or 
-
-\subsubsection{Graphic and numeric representation}
-
-We are going to see it in the next script of R (the graphic 
-
-
-\subsubsection{Hypothesis contrasting.}
-Now, we
-
-\section{Conclusions and conjecture.}
-Our algorithm GRASP,which we have done with our teacher Rafael Martí, has resulted to be the winner. One possibility is that we have a good implementation of the construction of the solution and a good implementation of the local search. \\
 
 
 %uoooooooooooooooo tumadreuooooooooooooooooooo UOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO
