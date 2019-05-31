@@ -143,7 +143,7 @@ Let $T$ be the set of available entries in the matrix i.e.,
  where the norms are the $L_2$ norms of the vectors and we have the net cost function as:
  
  \begin{equation}
-    L:= \mathbb{E}[\hat{l}]=\frac{1}{|T|}\sum\limits_{(i,j)\in T}(r_{ij}-\vec{p_{i}}\cdot\vec{q_{j}})^2+\frac{1}{|T|}\sum\limits_{i=1}^{m} s_i\norm{\vec{p_i}}^2+\frac{1}{|T|}\sum\limits_{j=1}^{n} t_j\norm{\vec{q_{j}}}^2
+    L:= \mathbf{E}[\hat{l}]=\frac{1}{|T|}\sum\limits_{(i,j)\in T}(r_{ij}-\vec{p_{i}}\cdot\vec{q_{j}})^2+\frac{1}{|T|}\sum\limits_{i=1}^{m} s_i\norm{\vec{p_i}}^2+\frac{1}{|T|}\sum\limits_{j=1}^{n} t_j\norm{\vec{q_{j}}}^2
  \end{equation}
  where
  \begin{align}
@@ -157,7 +157,40 @@ Let $T$ be the set of available entries in the matrix i.e.,
  \end{align}
 
 \section{Knowledge Base Completion using Tensor Decomposition}
+In knowledge base completion, the learner is given triples (subject, predicate, object) of facts about the world, and has to infer new triples that are likely but not yet known to be true. The standard completion task is link prediction, which consists in answering queries(subject, predicate, ?) or(?, predicate, object).\\
+Relational data can be represented as a $\{0,1\}-$valued third order tensor $\mathbb{Y} \in \{0,1\}^{N \times P \times N}$, where $N$ is the total number of \textit{entities} and $P$ the number of \textit{predicates}, with $\mathbb{Y}_{i,j,k}=1$ if the relation $(i,j,k)$ is known. Tensor factorization algorithms can thus be used to infer a predicted tensor $\hat{\mathbb{X}} \in \mathbf{R}^{N \times P \times N}$ that approximates $\mathbb{Y}$ in a sense that we describe in the next subsection. Validation/test queries (?,j,k) are answered by ordering entities $i^'$ by decreasing values of $\hat{\mathbb{X}}_{i^',j,k}$, whereas queries (i,j,?) are answered by ordering entities $k^'$ by decreasing values of $\hat{\mathbb{X}}_{i,j,k^'}$.\\
+The canonical decomposition of tensors, represents a tensor $\mathbb{X} \in \mathbf{R}^{N_1 \times N_2 \times N_3}$ as a sum of $R$ rank one tensors $u_{r}^{(1)} \otimes u_{r}^{(2)} \otimes u_{r}^{(3)}$ (with $\otimes$ the tensor product) where $r \in \{1, \ldots , R\}$, and $u_{r}^{(m)} \in \mathbf{R}^{N_m}$:
+\begin{equation}
+    \mathbb{X}=\sum \limits_{r=1}^{R} u_{r}^{(1)} \otimes u_{r}^{(2)} \otimes u_{r}^{(3)}
+\end{equation}
+Given $\mathbb{X}$, the smallest $R$ for which this decomposition holds is called the canonical rank of $\mathbb{X}$.\\
+Two popular models are:\\
+\textbf{DistMult.} It represents a tensor $\mathbb{X} \in \mathbf{R}^{N \times P \times N}$ as a sum of rank-1 tensors $u_{r}^{(1)} \otimes u_{r}^{(2)} \otimes u_{r}^{(1)}$:
+\begin{equation}
+    \mathbb{X}=\sum\limits_{r=1}^{R} u_{r}^{(1)} \otimes u_{r}^{(2)} \otimes u_{r}^{(1)}
+\end{equation}
 
+\textbf{ComplEx.}Dist-Mult yields a tensor that is symmetric in the object and subject modes. The assumption that the data tensor can be properly approximated by a symmetric tensor for Knowledge base completion is not satisfied in many practical cases (e.g., while (Washington, capital-of, USA) holds, (USA, capital-of, Washington) does not). ComplEx proposes an alternative where the subject and object modes share the parameters of the factors, but are complex conjugates of each other. More precisely, this approach represents a real-valued tensor $\mathbb{X} \in \mathbf{R}^{N_1 \times N_2 \times N_3}$ as the real part of a sum of $R$ complex-valued rank one tensors $u_{r}^{(1)} \otimes u_{r}^{(2)} \otimes \bar{u_{r}}^{(1)} $ where $r \in \{1,\ldots, R\}$, and $u_{r}^{(m)} \in \mathbf{C}^{N_m}$
+\begin{equation}
+    \mathbb{X}=Re(\sum\limits_{r=1}^{R}u_{r}^{(1)} \otimes u_{r}^{(2)} \otimes \bar{u_{r}}^{(1)}),
+\end{equation}
+where $\bar{u_{r}}^{(1)}$ is the complex conjugate of $u_{r}^{(1)}$.\\
+\textbf{Training}
+Given a training triple $(i,j,k)$ and a predicted tensor $\mathbb{X}$, the instantaneous multi-class log-loss $l_{i,j,k}(\mathbb{X})$ is 
+\begin{equation}
+    l_{i,j,k}(\mathbb{X})=l_{i,j,k}^{(1)}(\mathbb{X})+l_{i,j,k}^{(3)}(\mathbb{X})
+\end{equation}
+\begin{equation*}
+    l_{i,j,k}^{(1)}=-\mathbb{X}_{i,j,k} + log(\sum_{k^{'}} exp(\mathbb{X_{i,j,k^{'}}})) 
+\end{equation*}
+\begin{equation*}
+    l_{i,j,k}^{(3)}=-\mathbb{X}_{i,j,k} + log(\sum_{i^{'}} exp(\mathbb{X_{i^{'},j,k}}))
+\end{equation*}
+The final tensor is computed by finding a minimizer of a regularized empirical risk formulation, where the factors $u_{r}^{(d)}$ are weighted in a data-dependent manner by $w_{S}^{(d)}$, as:
+\begin{equation}
+    \min_{\substack{(u_r^{(d)}) \\ {d=1,\ldots,3 \\ r=1,\ldots,R}}} \sum\limits_{(i,j,k) \in S} l_{i,j,k}(\sum\limits_{r=1}^{R} u_{r}^{(1)} \otimes u_{r}^{(2)} \otimes u_{r}^{(3)}) + \lambda\sum\limits_{r=1}^{R}\sum\limits_{d=1}^{3}\norm{w_{S}^{(d)}\odot u_{r}^{(d)}}^{2},
+\end{equation}
+where $\odot$ is the entry-wise multiplication of vectors.
 
 
 
